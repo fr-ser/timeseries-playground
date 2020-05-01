@@ -1,37 +1,66 @@
 package cmd
 
 import (
-	"fmt"
+	"encoding/csv"
+	"os"
+	"time"
 
 	"generate/tools"
 
 	"go.uber.org/zap"
 )
 
-// METRICS is a map of the names of metrics and their IDs
-var METRICS = map[string]int{
-	"engine_temperature": 1,
-	"oil_temperature":    2,
-	"oil_pressure":       3,
-	"running_hours":      4,
-	"engine_load":        5,
+var l *zap.SugaredLogger
+
+// generate is the entrypoint to generate the random machine data
+// based on the arguments it is given
+func generate(
+	start, end time.Time,
+	destination string,
+	machines, readingInterval int,
+	deleteDest bool,
+) {
+	l = zap.S()
+
+	file, csvWriter := setupOutfile(destination, deleteDest)
+	defer file.Close()
+	defer csvWriter.Flush()
+
+	l.Info("Starting to generate data...")
+	for machineID := 0; machineID < machines; machineID++ {
+		readingTime := start
+		for readingTime.Before(end) {
+			createAndSaveReading(csvWriter, readingTime, machineID)
+
+			readingTime = readingTime.Add(time.Second * time.Duration(readingInterval))
+		}
+		csvWriter.Flush()
+		l.Debugf("Finished machine %d of %d", machineID+1, machines)
+	}
+	readingsPerMachine := int(end.Unix()-start.Unix()) / readingInterval
+	numberOfMetrics := 5
+	l.Infof("Finished. Wrote %d readings to the file", machines*readingsPerMachine*numberOfMetrics)
+
 }
 
-// generate generates the data based on the arguments
-// it is supposed to be called by the CLI
-func generate(start, end string, machines int) {
-	var logger = zap.S()
-
-	var destination = "../out.csv"
-	// var readingInterval = 5
-
+func setupOutfile(destination string, deleteDest bool) (*os.File, *csv.Writer) {
 	if tools.FileExists(destination) {
-		logger.Fatalf("ERR: The destination file (%s) already exists \n", destination)
+		if deleteDest {
+			err := os.Remove(destination)
+			tools.CheckError(l, "Cannot remove output file", err)
+		} else {
+			l.Fatalf("ERR: The destination file (%s) already exists \n", destination)
+		}
 	}
 
-	for idx := 0; idx < machines; idx++ {
-		fmt.Printf("cmd %s for ship %d \n", destination, idx)
+	file, err := os.Create(destination)
+	tools.CheckError(l, "Cannot create file", err)
 
-	}
+	csvWriter := csv.NewWriter(file)
 
+	// write headers
+	err = csvWriter.Write([]string{"timestamp", "metric", "machine", "value"})
+	tools.CheckError(l, "Cannot write to file", err)
+
+	return file, csvWriter
 }
