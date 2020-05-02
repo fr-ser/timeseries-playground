@@ -1,0 +1,17 @@
+apiVersion: 1
+datasources:
+  - name: timescale
+    type: postgres
+    access: proxy
+    url: ts:5432
+    user: db_admin
+    database: zlab
+    isDefault: true
+    editable: true
+    jsonData:
+      timescaledb: true
+      maxOpenConns: 15
+      postgresVersion: 1000
+      sslmode: "disable"
+    secureJsonData:
+      password: pass
