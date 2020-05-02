@@ -6,10 +6,25 @@ datasources:
     url: ts:5432
     user: db_admin
     database: zlab
-    isDefault: true
+    isDefault: false
     editable: true
     jsonData:
       timescaledb: true
+      maxOpenConns: 15
+      postgresVersion: 1000
+      sslmode: "disable"
+    secureJsonData:
+      password: pass
+  - name: postgres
+    type: postgres
+    access: proxy
+    url: pg:5432
+    user: db_admin
+    database: zlab
+    isDefault: false
+    editable: true
+    jsonData:
+      timescaledb: false
       maxOpenConns: 15
       postgresVersion: 1000
       sslmode: "disable"

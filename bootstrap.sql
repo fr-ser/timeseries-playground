@@ -12,7 +12,7 @@ CREATE TABLE "metrics"(
 );
 INSERT INTO metrics(metric_id, name) VALUES
 (1, 'engine_temperature'),
-(2, 'oil_temperatue'),
+(2, 'oil_temperature'),
 (3, 'oil_presssure'),
 (4, 'running_hours'),
 (5, 'engine_load');
