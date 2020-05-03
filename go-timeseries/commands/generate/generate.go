@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"timeseries/commands"
 	"timeseries/tools"
 )
 
@@ -51,15 +52,11 @@ var flags = []cli.Flag{
 
 // GenerateCommand is the command to create random data
 var GenerateCommand = &cli.Command{
-	Name:  "generate",
-	Usage: "creates random data for testing databases",
-	Flags: flags,
+	Name:   "generate",
+	Usage:  "creates random data for testing databases",
+	Flags:  flags,
+	Before: commands.NoArguments,
 	Action: func(c *cli.Context) error {
-
-		if c.NArg() > 0 {
-			log.Warn("Generate does not support arguments")
-			cli.ShowAppHelpAndExit(c, 1)
-		}
 
 		startTime, err := time.Parse(time.RFC3339, c.String("start")+"T00:00:00Z")
 		tools.CheckError("Start time parsing failed", err)

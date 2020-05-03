@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/urfave/cli/v2"
+
+	"timeseries/commands"
 )
 
 const (
@@ -22,8 +24,9 @@ var ConnectCommand = &cli.Command{
 > $(timeseries connect the_command)`,
 	Subcommands: []*cli.Command{
 		{
-			Name:  "postgres",
-			Usage: "connect to the plain postgres",
+			Name:   "postgres",
+			Usage:  "connect to the plain postgres",
+			Before: commands.NoArguments,
 			Action: func(c *cli.Context) error {
 				port := "35434"
 				fmt.Printf("psql -x postgres://%s:%s@%s:%s/%s", user, pass, host, port, database)
@@ -31,8 +34,9 @@ var ConnectCommand = &cli.Command{
 			},
 		},
 		{
-			Name:  "timescale",
-			Usage: "connect to the timescale db",
+			Name:   "timescale",
+			Usage:  "connect to the timescale db",
+			Before: commands.NoArguments,
 			Action: func(c *cli.Context) error {
 				port := "35433"
 				fmt.Printf("psql -x postgres://%s:%s@%s:%s/%s", user, pass, host, port, database)
