@@ -37,7 +37,7 @@ func main() {
 func initLogger() {
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 
-	switch logLevel := tools.GetEnvDefault("LOG_LEVEL", "INFO"); logLevel {
+	switch logLevel := tools.GetEnvDefault("LOG_LEVEL", "DEBUG"); logLevel {
 	case "DEBUG":
 		log.SetLevel(log.DebugLevel)
 	case "ERROR":

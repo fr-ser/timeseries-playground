@@ -19,16 +19,28 @@ var (
 )
 
 var flags = []cli.Flag{
-	&cli.StringFlag{Name: "start", Value: "2020-01-01", Usage: "Start date for the data"},
-	&cli.StringFlag{Name: "end", Value: "2020-02-01", Usage: "End date for the data"},
-	&cli.IntFlag{Name: "machines", Value: 5, Usage: "Number of machines", Destination: &machines},
+	&cli.StringFlag{
+		Name: "start", Aliases: []string{"s"}, Value: "2020-01-01",
+		Usage: "Start date for the data",
+	},
+	&cli.StringFlag{
+		Name: "end", Aliases: []string{"e"}, Value: "2020-02-01",
+		Usage: "End date for the data",
+	},
 	&cli.IntFlag{
-		Name: "interval", Value: 5, Destination: &readingInterval,
+		Name: "machines", Aliases: []string{"m"}, Value: 5, Destination: &machines,
+		Usage: "Number of machines",
+	},
+	&cli.IntFlag{
+		Name: "interval", Aliases: []string{"i"}, Value: 5, Destination: &readingInterval,
 		Usage: "Interval of seconds between readings",
 	},
-	&cli.StringFlag{Name: "output-folder", Value: "./", Usage: "Folder to save the data in"},
 	&cli.StringFlag{
-		Name:  "output-file",
+		Name: "output-folder", Aliases: []string{"o"}, Value: "./",
+		Usage: "Folder to save the data in",
+	},
+	&cli.StringFlag{
+		Name: "output-file", Aliases: []string{"f"},
 		Usage: "Full path of file to save the data in (output-folder is ignored and NOT prefixed)",
 	},
 	&cli.BoolFlag{
