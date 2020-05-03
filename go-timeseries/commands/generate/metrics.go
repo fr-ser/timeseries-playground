@@ -24,7 +24,7 @@ func createAndSaveReading(writer *csv.Writer, readingTime time.Time, machineID i
 	}
 	for _, reading := range readings {
 		err := writer.Write(reading)
-		tools.CheckError(l, "Cannot write to file", err)
+		tools.CheckError("Cannot write to file", err)
 	}
 }
 

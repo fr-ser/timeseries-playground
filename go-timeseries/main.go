@@ -1,16 +1,15 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"os"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"timeseries/commands/generate"
+	"timeseries/tools"
 )
 
 // func main() {
@@ -36,9 +35,16 @@ func main() {
 }
 
 func initLogger() {
-	config := zap.NewDevelopmentConfig()
-	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	logger, _ := config.Build()
-	zap.ReplaceGlobals(logger)
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 
+	switch logLevel := tools.GetEnvDefault("LOG_LEVEL", "INFO"); logLevel {
+	case "DEBUG":
+		log.SetLevel(log.DebugLevel)
+	case "ERROR":
+		log.SetLevel(log.ErrorLevel)
+	case "WARN":
+		log.SetLevel(log.WarnLevel)
+	default:
+		log.SetLevel(log.InfoLevel)
+	}
 }

@@ -6,13 +6,11 @@ import (
 	"os"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
 
 	"timeseries/tools"
 )
-
-var l *zap.SugaredLogger
 
 // pass through flag variables
 var (
@@ -45,13 +43,17 @@ var GenerateCommand = &cli.Command{
 	Usage: "generate creates random data for testing databases",
 	Flags: flags,
 	Action: func(c *cli.Context) error {
-		l = zap.S()
+
+		if c.NArg() > 0 {
+			log.Warn("Generate does not support arguments")
+			cli.ShowAppHelpAndExit(c, 1)
+		}
 
 		startTime, err := time.Parse(time.RFC3339, c.String("start")+"T00:00:00Z")
-		tools.CheckError(l, "Start time parsing failed", err)
+		tools.CheckError("Start time parsing failed", err)
 
 		endTime, err := time.Parse(time.RFC3339, c.String("end")+"T00:00:00Z")
-		tools.CheckError(l, "End time parsing failed", err)
+		tools.CheckError("End time parsing failed", err)
 
 		var destination string
 
@@ -76,7 +78,7 @@ func generate(start, end time.Time, destination string) {
 	defer file.Close()
 	defer csvWriter.Flush()
 
-	l.Info("Starting to generate data...")
+	log.Info("Starting to generate data...")
 	for machineID := 0; machineID < machines; machineID++ {
 		readingTime := start
 		for readingTime.Before(end) {
@@ -85,11 +87,11 @@ func generate(start, end time.Time, destination string) {
 			readingTime = readingTime.Add(time.Second * time.Duration(readingInterval))
 		}
 		csvWriter.Flush()
-		l.Debugf("Finished machine %d of %d", machineID+1, machines)
+		log.Debugf("Finished machine %d of %d", machineID+1, machines)
 	}
 	readingsPerMachine := int(end.Unix()-start.Unix()) / readingInterval
 	numberOfMetrics := 5
-	l.Infof("Finished. Wrote %d readings to the file", machines*readingsPerMachine*numberOfMetrics)
+	log.Infof("Finished. Wrote %d readings to the file", machines*readingsPerMachine*numberOfMetrics)
 
 }
 
@@ -97,20 +99,20 @@ func setupOutfile(destination string, deleteDest bool) (*os.File, *csv.Writer) {
 	if tools.FileExists(destination) {
 		if deleteDest {
 			err := os.Remove(destination)
-			tools.CheckError(l, "Cannot remove output file", err)
+			tools.CheckError("Cannot remove output file", err)
 		} else {
-			l.Fatalf("ERR: The destination file (%s) already exists \n", destination)
+			log.Fatalf("ERR: The destination file (%s) already exists \n", destination)
 		}
 	}
 
 	file, err := os.Create(destination)
-	tools.CheckError(l, "Cannot create file", err)
+	tools.CheckError("Cannot create file", err)
 
 	csvWriter := csv.NewWriter(file)
 
 	// write headers
 	err = csvWriter.Write([]string{"timestamp", "metric", "machine", "value"})
-	tools.CheckError(l, "Cannot write to file", err)
+	tools.CheckError("Cannot write to file", err)
 
 	return file, csvWriter
 }
