@@ -8,15 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"timeseries/commands/connect"
 	"timeseries/commands/generate"
 	"timeseries/tools"
 )
-
-// func main() {
-// rand.Seed(time.Now().UnixNano())
-// 	initLogger()
-// 	cmd.Execute()
-// }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -26,6 +21,7 @@ func main() {
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		generate.GenerateCommand,
+		connect.ConnectCommand,
 	}
 
 	err := app.Run(os.Args)

@@ -52,7 +52,7 @@ var flags = []cli.Flag{
 // GenerateCommand is the command to create random data
 var GenerateCommand = &cli.Command{
 	Name:  "generate",
-	Usage: "generate creates random data for testing databases",
+	Usage: "creates random data for testing databases",
 	Flags: flags,
 	Action: func(c *cli.Context) error {
 
