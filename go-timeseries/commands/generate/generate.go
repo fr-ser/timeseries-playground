@@ -1,4 +1,4 @@
-package cmd
+package generate
 
 import (
 	"encoding/csv"
@@ -6,69 +6,67 @@ import (
 	"os"
 	"time"
 
-	"timeseries/tools"
-
-	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+
+	"timeseries/tools"
 )
 
 var l *zap.SugaredLogger
 
-// flag variables
+// pass through flag variables
 var (
-	start, end, outputFile, outputFolder string
-	machines, readingInterval            int
-	deleteDest                           bool
+	machines, readingInterval int
+	deleteDest                bool
 )
 
-// generateCmd is the command to create random data
-var generateCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "generate creates random data for testing databases",
-	Long: `generate creates typical IOT data to be used for testing databases.
+var flags = []cli.Flag{
+	&cli.StringFlag{Name: "start", Value: "2020-01-01", Usage: "Start date for the data"},
+	&cli.StringFlag{Name: "end", Value: "2020-02-01", Usage: "End date for the data"},
+	&cli.IntFlag{Name: "machines", Value: 5, Usage: "Number of machines", Destination: &machines},
+	&cli.IntFlag{
+		Name: "interval", Value: 5, Destination: &readingInterval,
+		Usage: "Interval of seconds between readings",
+	},
+	&cli.StringFlag{Name: "output-folder", Value: "./", Usage: "Folder to save the data in"},
+	&cli.StringFlag{
+		Name:  "output-file",
+		Usage: "Full path of file to save the data in (output-folder is ignored and NOT prefixed)",
+	},
+	&cli.BoolFlag{
+		Name: "delete-out", Value: false, Destination: &deleteDest,
+		Usage: "Deletes the previous output file if it exists",
+	},
+}
 
-The generated data is mostly constant with a random deviation but tries to simulate existing
-machine data. For example no usage during the night is simulated.
-	`,
-	Args: cobra.ExactArgs(0),
-	Run: func(command *cobra.Command, args []string) {
+// GenerateCommand is the command to create random data
+var GenerateCommand = &cli.Command{
+	Name:  "generate",
+	Usage: "generate creates random data for testing databases",
+	Flags: flags,
+	Action: func(c *cli.Context) error {
 		l = zap.S()
 
-		startTime, err := time.Parse(time.RFC3339, start+"T00:00:00Z")
+		startTime, err := time.Parse(time.RFC3339, c.String("start")+"T00:00:00Z")
 		tools.CheckError(l, "Start time parsing failed", err)
 
-		endTime, err := time.Parse(time.RFC3339, end+"T00:00:00Z")
+		endTime, err := time.Parse(time.RFC3339, c.String("end")+"T00:00:00Z")
 		tools.CheckError(l, "End time parsing failed", err)
 
 		var destination string
 
-		if outputFile != "" {
-			destination = outputFile
+		if c.String("output-file") != "" {
+			destination = c.String("output-file")
 		} else {
 			destination = fmt.Sprintf(
 				"%s/%d_machines_%d_days.csv",
-				outputFolder, machines, int(endTime.Sub(startTime).Hours()/24),
+				c.String("output-folder"), machines, int(endTime.Sub(startTime).Hours()/24),
 			)
 		}
 
 		generate(startTime, endTime, destination)
+		return nil
 	},
-}
-
-func initGenerate() {
-	rootCmd.AddCommand(generateCmd)
-
-	generateCmd.Flags().StringVarP(&start, "start", "s", "2020-01-01", "Start date for the data")
-	generateCmd.Flags().StringVarP(&end, "end", "e", "2020-02-01", "End date (exclusive) for the data")
-	generateCmd.Flags().StringVarP(&outputFolder, "output-folder", "o", "./",
-		"Folder to save the data in")
-	generateCmd.Flags().StringVarP(&outputFile, "output-file", "f", "",
-		"Full path of file to save the data in (output-folder is ignored and NOT prefixed)")
-	generateCmd.Flags().IntVarP(&machines, "machines", "m", 5, "Number of machines")
-	generateCmd.Flags().IntVarP(&readingInterval, "interval", "i", 5,
-		"Interval of seconds between readings")
-	generateCmd.Flags().BoolVarP(&deleteDest, "delete-out", "d", false,
-		"Deletes the previous output file if it exists")
 }
 
 // generate is the entrypoint to generate the random machine data
