@@ -1,12 +1,13 @@
 package main
 
 import (
-	"generate/cmd"
 	"math/rand"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"timeseries/cmd"
 )
 
 func main() {

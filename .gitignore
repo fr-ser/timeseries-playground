@@ -1,2 +1,4 @@
 data
-generate
+
+# go package names
+timeseries

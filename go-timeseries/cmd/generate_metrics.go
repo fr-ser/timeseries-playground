@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"encoding/csv"
-	"generate/tools"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"timeseries/tools"
 )
 
 // createAndSaveReading generates a reading for each metrics

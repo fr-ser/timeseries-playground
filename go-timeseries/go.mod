@@ -1,4 +1,4 @@
-module generate
+module timeseries
 
 go 1.14
 
