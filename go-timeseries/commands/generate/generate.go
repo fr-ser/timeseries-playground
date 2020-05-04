@@ -70,8 +70,10 @@ var GenerateCommand = &cli.Command{
 			destination = c.String("output-file")
 		} else {
 			destination = fmt.Sprintf(
-				"%s/%d_machines_%d_days.csv",
-				c.String("output-folder"), machines, int(endTime.Sub(startTime).Hours()/24),
+				"%s/%s_to_%s_%dm_%di.csv",
+				c.String("output-folder"),
+				c.String("end"), c.String("start"),
+				machines, readingInterval,
 			)
 		}
 
