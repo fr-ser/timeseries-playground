@@ -30,3 +30,16 @@ datasources:
       sslmode: "disable"
     secureJsonData:
       password: pass
+  - name: influx
+    type: influxdb
+    access: proxy
+    basicAuth: false
+    database: zlab
+    isDefault: false
+    jsonData:
+      httpMode: GET
+    readOnly: false
+    secureJsonFields:
+      password: pass
+    url: http://influx:8086
+    user: db_admin

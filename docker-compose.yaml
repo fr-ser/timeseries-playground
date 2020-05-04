@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: zlab
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/ts:/var/lib/postgresql/data
+      - ./data/db/ts:/var/lib/postgresql/data
     ports:
       - 35433:5432
   pg:
@@ -19,9 +19,30 @@ services:
       POSTGRES_DB: zlab
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/pg:/var/lib/postgresql/data
+      - ./data/db/pg:/var/lib/postgresql/data
     ports:
       - 35434:5432
+  influx:
+    image: influxdb:1.7.10-alpine
+    environment:
+      INFLUXDB_ADMIN_USER: db_admin
+      INFLUXDB_ADMIN_PASSWORD: pass
+      INFLUXDB_DB: zlab
+    volumes:
+      - ./data/db/influx:/var/lib/influxdb
+    ports:
+      - 8086:8086
+  telegraf:
+    # image: telegraf:alpine
+    build:
+      # build own because a feature is not yet released in 1.14.2
+      # required feature is max_undelivered_lines from tail plugin
+      context: ./telegraf
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./data/iot:/data/
+    depends_on:
+      - influx
   grafana:
     image: grafana/grafana:6.7.3
     volumes:
@@ -31,3 +52,7 @@ services:
       - "./grafana/dashboards:/app/dashboards"
     ports:
       - 3000:3000
+    depends_on:
+      - ts
+      - pg
+      - influx

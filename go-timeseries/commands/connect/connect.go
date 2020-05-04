@@ -43,5 +43,14 @@ var ConnectCommand = &cli.Command{
 				return nil
 			},
 		},
+		{
+			Name:   "influx",
+			Usage:  "connect to the influx db through docker compose",
+			Before: commands.NoArguments,
+			Action: func(c *cli.Context) error {
+				fmt.Print("docker-compose exec influx influx -precision rfc3339")
+				return nil
+			},
+		},
 	},
 }
